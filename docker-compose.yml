@@ -1,8 +1,8 @@
 services:
   stats-server:
     build:
-      context: . # 1. Устанавливаем контекст сборки в корень проекта
-      dockerfile: stats/stats-server/Dockerfile # 2. Указываем точный путь к Dockerfile
+      context: .
+      dockerfile: stats/stats-server/Dockerfile
     image: stats_image
     container_name: stats
     ports:
@@ -23,3 +23,8 @@ services:
       - POSTGRES_PASSWORD=stats
       - POSTGRES_USER=stats
       - POSTGRES_DB=stats
+    volumes:
+      - stats_db_data:/var/lib/postgresql/data
+
+volumes:
+  stats_db_data:
