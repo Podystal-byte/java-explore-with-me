@@ -3,7 +3,6 @@ package ru.practicum.request.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.event.model.Event;
-
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
@@ -31,9 +30,7 @@ public class RequestService {
     public List<ParticipationRequestDto> getRequests(Long userId) {
         getUser(userId);
         List<ParticipationRequest> requests = requestRepository.findByRequesterId(userId);
-        return requests.stream()
-                .map(requestMapper::toDto)
-                .collect(Collectors.toList());
+        return requests.stream().map(requestMapper::toDto).collect(Collectors.toList());
     }
 
     public ParticipationRequestDto create(Long userId, Long eventId) {
@@ -71,19 +68,16 @@ public class RequestService {
     }
 
     private ParticipationRequest getRequest(Long requestId) {
-        return requestRepository.findById(requestId)
-                .orElseThrow(() -> new NotFoundException("Запрос id " + requestId + " не найден"));
+        return requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Запрос id " + requestId + " не найден"));
     }
 
     private Event getPublishedEvent(Long eventId) {
-        return eventRepository.findPublishedById(eventId)
-                .orElseThrow(() -> new ConflictException ("Событие не опубликовано."));
+        return eventRepository.findPublishedById(eventId).orElseThrow(() -> new ConflictException("Событие не опубликовано."));
     }
 
 
     private User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь id " + userId + " не найден"));
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь id " + userId + " не найден"));
     }
 
     private void checkNoDuplicate(Long userId, Long eventId) {
@@ -106,8 +100,7 @@ public class RequestService {
     }
 
     private RequestStatus resolveStatus(Event event) {
-        boolean autoConfirm = !Boolean.TRUE.equals(event.getRequestModeration())
-                || event.getParticipantLimit() == 0;
+        boolean autoConfirm = !Boolean.TRUE.equals(event.getRequestModeration()) || event.getParticipantLimit() == 0;
         if (autoConfirm) {
             return CONFIRMED;
         } else {
