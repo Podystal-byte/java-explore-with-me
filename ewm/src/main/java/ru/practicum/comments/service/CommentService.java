@@ -82,4 +82,10 @@ public class CommentService {
 
         commentRepository.delete(comment);
     }
+
+    public void deleteCommentAdmin(Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Комментарий с id=" + commentId + " не найден."));
+
+        commentRepository.delete(comment);
+    }
 }

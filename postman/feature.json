@@ -1,8 +1,8 @@
 {
   "info": {
     "_postman_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
-    "name": "Comments API Tests",
-    "description": "Автоматизированная коллекция тестов для API комментариев. Запросы в папке [A] Setup создают и публикуют все необходимые данные (пользователя, категорию, событие) для тестов.",
+    "name": "Comments API Tests (Updated for Admin)",
+    "description": "Автоматизированная коллекция тестов для API комментариев. Включены тесты для двух созданий комментария и удаления через Private и Admin контроллеры. Запросы в папке [A] Setup создают и публикуют все необходимые данные (пользователя, категорию, событие) для тестов.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -236,7 +236,7 @@
       "name": "[B] Private & Public Comment Tests",
       "item": [
         {
-          "name": "[POST] Create Comment",
+          "name": "[POST] 1. Create Comment 1 (Private)",
           "event": [
             {
               "listen": "test",
@@ -246,7 +246,7 @@
                   "    pm.response.to.have.status(201);",
                   "});",
                   "",
-                  "pm.test(\"Response body contains created comment\", function () {",
+                  "pm.test(\"Response body contains created comment 1\", function () {",
                   "    const responseJson = pm.response.json();",
                   "    pm.expect(responseJson.id).to.be.a('number');",
                   "    pm.expect(responseJson.description).to.eql(\"Отличный концерт! Очень понравилась атмосфера.\");",
@@ -283,7 +283,59 @@
                 "{{eventId}}"
               ]
             },
-            "description": "Создаёт комментарий и сохраняет его `id` в переменную для использования в других тестах."
+            "description": "Создаёт первый комментарий и сохраняет его `id` в переменную `commentId` для последующих тестов."
+          },
+          "response": []
+        },
+        {
+          "name": "[POST] 2. Create Comment 2 (Private)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body contains created comment 2\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.id).to.be.a('number');",
+                  "    pm.expect(responseJson.description).to.eql(\"Второй комментарий для проверки удаления администратором.\");",
+                  "    pm.expect(responseJson.author.id).to.eql(parseInt(pm.collectionVariables.get(\"userId\")));",
+                  "});",
+                  "",
+                  "const responseJson = pm.response.json();",
+                  "pm.collectionVariables.set(\"commentId2\", responseJson.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"description\": \"Второй комментарий для проверки удаления администратором.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comments/{{userId}}/{{eventId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "comments",
+                "{{userId}}",
+                "{{eventId}}"
+              ]
+            },
+            "description": "Создаёт второй комментарий и сохраняет его `id` в переменную `commentId2` для удаления админом."
           },
           "response": []
         },
@@ -330,7 +382,7 @@
                 "{{commentId}}"
               ]
             },
-            "description": "Обновляет комментарий, созданный на предыдущем шаге."
+            "description": "Обновляет первый комментарий, созданный на шаге 1."
           },
           "response": []
         },
@@ -409,12 +461,13 @@
                 "comments",
                 "{{commentId}}"
               ]
-            }
+            },
+            "description": "Получение первого комментария."
           },
           "response": []
         },
         {
-          "name": "[DELETE] Delete Comment by Author",
+          "name": "[DELETE] 3. Delete Comment 1 by Author (Private Controller)",
           "event": [
             {
               "listen": "test",
@@ -442,7 +495,40 @@
                 "{{commentId}}"
               ]
             },
-            "description": "Удаление комментария его автором."
+            "description": "Удаление первого комментария его автором через Private Controller."
+          },
+          "response": []
+        },
+        {
+          "name": "[DELETE] 4. Delete Comment 2 by Admin (Admin Controller)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204 No Content\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/comments/{{commentId2}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "comments",
+                "{{commentId2}}"
+              ]
+            },
+            "description": "Удаление второго комментария администратором через новый AdminCommentController."
           },
           "response": []
         }
@@ -560,7 +646,13 @@
       "key": "commentId",
       "value": "",
       "type": "string",
-      "description": "ID комментария, создается автоматически после успешного выполнения POST запроса."
+      "description": "ID комментария 1, создается автоматически после успешного выполнения POST запроса."
+    },
+    {
+      "key": "commentId2",
+      "value": "",
+      "type": "string",
+      "description": "ID комментария 2, создается автоматически после успешного выполнения POST запроса."
     },
     {
       "key": "eventDate",
